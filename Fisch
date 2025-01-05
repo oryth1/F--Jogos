@@ -2,30 +2,104 @@ local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
 -- Configuração da interface
 local Window = Rayfield:CreateWindow({
-    Name = "Oryh Hub | Universal BR | Fisch", 
+    Name = "Xethus Hub | Universal BR | Fisch", 
     LoadingTitle = "Carregando Fisch",
-    LoadingSubtitle = "Por favor, aguarde...",
-    ConfigurationSaving = {
-        Enabled = true,
-        FolderName = "OryhHubConfigs", -- Pasta para salvar configurações
-        FileName = "UniversalScript"
-    },
-    Discord = {
-        Enabled = false,
-        Invite = "", -- Adicione um convite do Discord se necessário
-        RememberJoins = true
-    },
-    KeySystem = false -- Sistema de chave desativado
+    LoadingSubtitle = "Gerando Scripts..."
 })
 
--- Função para criar botões que executam scripts
+-- Caminho para a pasta de configurações
+local ConfigFolder = "Fisch"
+if not isfolder(ConfigFolder) then
+    makefolder(ConfigFolder)
+end
+
+local ConfigFile = ConfigFolder .. "/Fisch.json"
+
+-- Variáveis globais
+local SelectedScript = nil
+local AutoExecute = false
+local Scripts = {
+
+["Xethus Hub"] = "https://raw.githubusercontent.com/Hercules4328/UnderwaterBR/refs/heads/main/Fisch",
+["Native Hub"] = "https://raw.githubusercontent.com/Native-lab/Native/main/loader.lua",
+["Hidden Hub"] = "https://raw.githubusercontent.com/tulontop/HiddenRevamp/refs/heads/main/Loader.luau",
+["Alchemy Hub"] = "https://scripts.alchemyhub.xyz/",
+["Speed Hub X"] = "https://raw.githubusercontent.com/AhmadV99/Speed-Hub-X/main/Speed%20Hub%20X.lua",
+["Prestine Hub"] = "https://raw.githubusercontent.com/Hercules4328/UnderwaterBR/refs/heads/main/Fisch",
+["Moon X Hub"] = "https://api.luarmor.net/files/v3/loaders/cba17b913ee63c7bfdbb9301e2d87c8b.lua",
+["Witch Hub"] = "https://raw.githubusercontent.com/londnee/code/refs/heads/main/Fisch.lua",
+["Bonk Hub"] = "https://bonkhubloader.netlify.app",
+["Average Hub"] = "https://api.flow-hub.xyz/loader",
+["Forge Hub"] = "https://raw.githubusercontent.com/Skzuppy/forge-hub/main/loader.lua",
+["Nebora Hub"] = "https://api.luarmor.net/files/v3/loaders/499fa8eaaae391c6c3c77f2640811357.lua",
+["Asther Hub"] = "https://api.luarmor.net/files/v3/loaders/2529a5f9dfddd5523ca4e22f21cceffa.lua",
+["Abstractful Hub V2"] = "https://raw.githubusercontent.com/AbstractHub/ScriptHub/refs/heads/Loader/AutoFish",
+["Allux Hub"] = "https://raw.githubusercontent.com/iminreality/Allux/refs/heads/main/Fish_GrabXP.lua",
+["Nausigi Hub"] = "https://raw.githubusercontent.com/scriptpastebin/raw/main/Nausigi",
+["Adam Hub"] = "https://raw.githubusercontent.com/DENGHUB2025/HUGHUB/main/WL",
+["Onyx Hub"] = "https://raw.githubusercontent.com/zenzon23/ONYX-HUB123/refs/heads/main/FISCH",
+["Nicuse Hub"] = "https://api.luarmor.net/files/v3/loaders/bd8b5a2f8618a502e393798c497450b5.lua",
+["Eternal Hub"] = "https://raw.githubusercontent.com/Vixx77/Eternal/main/EternalHub_Fish",
+["Rinns Hub"] = "https://raw.githubusercontent.com/kylosilly/femboyware/refs/heads/main/Fisch.lua",
+["Xnox Hub"] = "https://raw.githubusercontent.com/kidxnox/f/refs/heads/main/f",
+["Gooba Hub"] = "https://raw.githubusercontent.com/JustLevel/goombahub/main/fisch.lua",
+["Public Hub"] = "https://raw.githubusercontent.com/Lythicals/script/main/Fisch.lua",
+["Legend HandlesYT Hub"] = "https://raw.githubusercontent.com/LOLking123456/Fisch/refs/heads/main/New",
+["Neuro Hub"] = "https://raw.githubusercontent.com/Yumiara/CPP/refs/heads/main/Main.cpp",
+["Hutao Hub"] = "https://raw.githubusercontent.com/HutaoHubs/Hutaohubs2.0/refs/heads/main/FischV2.lua",
+["Naomi Hub"] = "https://naokihub.vercel.app",
+["Mercury Hub"] = "https://api.luarmor.net/files/v3/loaders/c019f214a19894b50f0b8e817b70d25f.lua",
+["Tsuo Hub"] = "https://raw.githubusercontent.com/Tsuo7/TsuoHub/main/king%20legacy"
+}
+
+-- Função para salvar configurações
+local function SaveSettings()
+    writefile(ConfigFile, game:GetService("HttpService"):JSONEncode({
+        SelectedScript = SelectedScript,
+        AutoExecute = AutoExecute
+    }))
+end
+
+-- Função para carregar configurações
+local function LoadSettings()
+    if isfile(ConfigFile) then
+        local settings = game:GetService("HttpService"):JSONDecode(readfile(ConfigFile))
+        SelectedScript = settings.SelectedScript
+        AutoExecute = settings.AutoExecute
+    end
+end
+
+-- Carregar configurações ao iniciar
+LoadSettings()
+
+-- Criar a aba "Scripts"
+local TabScripts = Window:CreateTab("Scripts", "Scroll")
+
+-- Toggle para Auto-Execute
+TabScripts:CreateToggle({
+    Name = "Auto-Execute",
+    CurrentValue = AutoExecute,
+    Callback = function(value)
+        AutoExecute = value
+        SaveSettings()
+        Rayfield:Notify({
+            Title = "Configuração Atualizada",
+            Content = AutoExecute and "Auto-Execute ativado" or "Auto-Execute desativado",
+            Duration = 5
+        })
+    end
+})
+
+-- Função para adicionar botões com scripts
 local function AddScriptButton(tab, name, url)
     tab:CreateButton({
         Name = name,
         Callback = function()
+            SelectedScript = url
             loadstring(game:HttpGet(url))()
+            SaveSettings()
             Rayfield:Notify({
-                Title = "Oryh Hub",
+                Title = "Xethus Hub",
                 Content = name .. " carregado com sucesso!",
                 Duration = 5
             })
@@ -33,42 +107,78 @@ local function AddScriptButton(tab, name, url)
     })
 end
 
--- Guia de Scripts para Fisch
-local FischTab = Window:CreateTab("Fisch Scripts")
-AddScriptButton(FischTab, "Xethus Hub", "https://raw.githubusercontent.com/Hercules4328/UnderwaterBR/refs/heads/main/Fisch")
-AddScriptButton(FischTab, "Native Hub", "https://raw.githubusercontent.com/Native-lab/Native/main/loader.lua")
-AddScriptButton(FischTab, "Hidden Hub", "https://raw.githubusercontent.com/tulontop/HiddenRevamp/refs/heads/main/Loader.luau")
-AddScriptButton(FischTab, "Alchemy Hub", "https://scripts.alchemyhub.xyz/")
-AddScriptButton(FischTab, "Speed Hub X", "https://raw.githubusercontent.com/AhmadV99/Speed-Hub-X/main/Speed%20Hub%20X.lua")
-AddScriptButton(FischTab, "Prestine Hub", "https://raw.githubusercontent.com/Hercules4328/UnderwaterBR/refs/heads/main/Fisch")
-AddScriptButton(FischTab, "Moon X Hub", "https://api.luarmor.net/files/v3/loaders/cba17b913ee63c7bfdbb9301e2d87c8b.lua")
-AddScriptButton(FischTab, "Witch Hub", "https://raw.githubusercontent.com/londnee/code/refs/heads/main/Fisch.lua")
-AddScriptButton(FischTab, "Bonk Hub", "https://bonkhubloader.netlify.app")
-AddScriptButton(FischTab, "Average Hub", "https://api.flow-hub.xyz/loader")
-AddScriptButton(FischTab, "Forge Hub", "https://raw.githubusercontent.com/Skzuppy/forge-hub/main/loader.lua")
-AddScriptButton(FischTab, "Nebora Hub", "https://api.luarmor.net/files/v3/loaders/499fa8eaaae391c6c3c77f2640811357.lua")
-AddScriptButton(FischTab, "Asther Hub", "https://api.luarmor.net/files/v3/loaders/2529a5f9dfddd5523ca4e22f21cceffa.lua")
-AddScriptButton(FischTab, "Abstractful Hub V2", "https://raw.githubusercontent.com/AbstractHub/ScriptHub/refs/heads/Loader/AutoFish")
-AddScriptButton(FischTab, "Allux Hub", "https://raw.githubusercontent.com/iminreality/Allux/refs/heads/main/Fish_GrabXP.lua")
-AddScriptButton(FischTab, "Nausigi Hub", "https://raw.githubusercontent.com/scriptpastebin/raw/main/Nausigi")
-AddScriptButton(FischTab, "Adam Hub", "https://raw.githubusercontent.com/DENGHUB2025/HUGHUB/main/WL")
-AddScriptButton(FischTab, "Onyx Hub", "https://raw.githubusercontent.com/zenzon23/ONYX-HUB123/refs/heads/main/FISCH")
-AddScriptButton(FischTab, "Nicuse Hub", "https://api.luarmor.net/files/v3/loaders/bd8b5a2f8618a502e393798c497450b5.lua")
-AddScriptButton(FischTab, "Eternal Hub", "https://raw.githubusercontent.com/Vixx77/Eternal/main/EternalHub_Fish")
-AddScriptButton(FischTab, "Rinns Hub", "https://raw.githubusercontent.com/kylosilly/femboyware/refs/heads/main/Fisch.lua")
-AddScriptButton(FischTab, "Xnox Hub", "https://raw.githubusercontent.com/kidxnox/f/refs/heads/main/f")
-AddScriptButton(FischTab, "Gooba Hub", "https://raw.githubusercontent.com/JustLevel/goombahub/main/fisch.lua")
-AddScriptButton(FischTab, "Public Hub", "https://raw.githubusercontent.com/Lythicals/script/main/Fisch.lua")
-AddScriptButton(FischTab, "Legend HandlesYT Hub", "https://raw.githubusercontent.com/LOLking123456/Fisch/refs/heads/main/New")
-AddScriptButton(FischTab, "Neuro Hub", "https://raw.githubusercontent.com/Yumiara/CPP/refs/heads/main/Main.cpp")
-AddScriptButton(FischTab, "Hutao Hub", "https://raw.githubusercontent.com/HutaoHubs/Hutaohubs2.0/refs/heads/main/FischV2.lua")
-AddScriptButton(FischTab, "Naomi Hub", "https://naokihub.vercel.app")
-AddScriptButton(FischTab, "Mercury Hub", "https://api.luarmor.net/files/v3/loaders/c019f214a19894b50f0b8e817b70d25f.lua")
-AddScriptButton(FischTab, "Tsuo Hub", "https://raw.githubusercontent.com/Tsuo7/TsuoHub/main/king%20legacy")
+-- Adicionar botões para os Scripts
+for name, url in pairs(Scripts) do
+    AddScriptButton(TabScripts, name, url)
+end
 
--- Mensagem inicial
+-- Execução automática no início, se ativado
+if AutoExecute and SelectedScript then
+    local success, errorMsg = pcall(function()
+        loadstring(game:HttpGet(SelectedScript))()
+    end)
+    if success then
+        Rayfield:Notify({
+            Title = "Auto-Execute",
+            Content = "Script executado automaticamente com sucesso!",
+            Duration = 5
+        })
+    else
+        Rayfield:Notify({
+            Title = "Erro no Auto-Execute",
+            Content = "Erro ao executar o script: " .. errorMsg,
+            Duration = 5
+        })
+    end
+end
+
+-- Criar a aba "Admins" com o ícone "icon-cable"
+local AdminTab = Window:CreateTab("Admins", "expand")
+
+-- Adicionar botões para scripts de Admin
+AddScriptButton(AdminTab, "</> Aimbot", "https://raw.githubusercontent.com/Yousuck780/troll-x/main/ahhhh")
+AddScriptButton(AdminTab, "</> Graficos Realistas", "https://raw.githubusercontent.com/Flybobbb/robloxscripts/main/rtx.lua")
+AddScriptButton(AdminTab, "</> Infinite Yield", "https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source")
+AddScriptButton(AdminTab, "</> Retirar Texturas", "https://rawscripts.net/raw/Universal-Script-antilag-15462")
+AddScriptButton(AdminTab, "</> Servidor Privado", "https://pastebin.com/raw/A4r1pHJY")
+AddScriptButton(AdminTab, "</> TP Tools", "https://pastebin.com/raw/qysTtrJD")
+
+-- Criar a aba "Redes Sociais"
+local SocialTab = Window:CreateTab("Redes Sociais","link")
+
+-- Adicionar botões para redes sociais
+SocialTab:CreateButton({
+    Name = "Discord Community",
+    Callback = function()
+        setclipboard("https://discord.gg/UTchgb5sY4")
+    end
+})
+
+SocialTab:CreateButton({
+    Name = "Instagram para Contato",
+    Callback = function()
+        setclipboard("https://www.instagram.com/hidleywilliam")
+    end
+})
+
+SocialTab:CreateButton({
+    Name = "Canal no YouTube",
+    Callback = function()
+        setclipboard("https://www.youtube.com/channel/UCX2N85bLl1JwWsb9wQ1NxHg")
+    end
+})
+
+SocialTab:CreateButton({
+    Name = "Executores Atualizados",
+    Callback = function()
+        setclipboard("https://beacons.ai/ethus.oi")
+    end
+})
+
+
+-- Notificação inicial
 Rayfield:Notify({
-    Title = "Fisch",
-    Content = "Carregando scripts...",
+    Title = "Xethus Hub",
+    Content = "Scripts atualizados com sucesso!",
     Duration = 5
 })
